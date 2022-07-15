@@ -45,10 +45,22 @@ class UserManager(BaseUserManager):
         return user
 
 
+class TeamLeader(models.Model):
+    email = models.EmailField(unique=True, max_length=255)
+    username = models.CharField(unique=True,max_length=255)
+
+
+class Office(models.Model):
+    location = models.CharField(unique=True, max_length=255)
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
+    team_leader = models.ManyToManyField(TeamLeader, related_name='team_lead')
     is_staff = models.BooleanField(default=False)
+    job_title = models.CharField(max_length=255)
+    office = models.ManyToManyField(Office,related_name='office_location')
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

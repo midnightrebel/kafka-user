@@ -1,13 +1,52 @@
+import re
+
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import Message, User
+from rest_framework.exceptions import ValidationError
+
+from .models import Message, User, TeamLeader, Office
 
 
 class MessageSerializer(serializers.ModelSerializer):
     content = serializers.CharField(read_only=True)
+
     class Meta:
         model = Message
         fields = ['content']
+
+
+class TeamLeadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeamLeader
+        fields = ['email', 'username']
+
+
+class TeamLeadCreate(serializers.ModelSerializer):
+    class Meta:
+        model = TeamLeader
+        fields = ['email', 'username']
+
+
+class OfficeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Office
+        fields = ['location']
+
+
+class OfficeCreate(serializers.ModelSerializer):
+    class Meta:
+        model = Office
+        fields = ['location']
+
+    def validate(self, data):
+        place = data['location']
+        if re.match(r'\d', data['name']):
+            raise ValidationError("Название не должно начинаться с цифры.")
+        if place != '':
+            office_instance = Office.objects.filter(location=place)
+        if office_instance.exists():
+            raise ValidationError("Магазин уже существует")
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):
