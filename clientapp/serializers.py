@@ -49,16 +49,22 @@ class OfficeCreate(serializers.ModelSerializer):
         return data
 
 
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     class Meta:
         model = User
         fields = ('password','email', 'username', 'team_leader', 'password', 'office', 'job_title')
 
+
     def update(self, instance, validated_data):
+        instance.team_leader = validated_data.get('team_leader', instance.team_leader)
+        instance.job_title = validated_data.get('job_title', instance.team_leader)
         instance.set_password(validated_data['password'])
         instance.save()
         return instance
+
+
 
 
 class UserSerializer(serializers.ModelSerializer):

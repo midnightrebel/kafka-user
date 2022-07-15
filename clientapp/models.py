@@ -75,7 +75,7 @@ class Office(models.Model):
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
-    team_leader = models.ManyToManyField(TeamLeader, related_name='team_lead')
+    team_leader = models.ForeignKey(TeamLeader, related_name='team_lead',on_delete=models.CASCADE,null=True)
     is_staff = models.BooleanField(default=False)
     job_title = models.CharField(max_length=255)
     office = models.ManyToManyField(Office, related_name='office_location')

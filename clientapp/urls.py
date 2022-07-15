@@ -6,13 +6,13 @@ from .views import ConsumerView, CurrentUserView, UserListView, TeamLeadViewSet,
 router = DefaultRouter()
 router.register('teamlead', TeamLeadViewSet)
 router.register('office', OfficeViewSet)
-
+router.register('update',AdminChangeView)
 urlpatterns = [
     path('consumer/', ConsumerView.as_view()),
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
     path('users/', UserListView.as_view()),
     path('me/', CurrentUserView.as_view()),
-    path('users/<int:pk>/',AdminChangeView.as_view()),
+    # path('users/<int:pk>/',AdminChangeView.as_view()),
     path('', include(router.urls))
 ]

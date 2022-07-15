@@ -57,7 +57,7 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
 
 
-class AdminChangeView(generics.RetrieveUpdateDestroyAPIView):
+class AdminChangeView(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
     queryset = User.objects.prefetch_related('office', 'team_leader')
     serializer_class = UserUpdateSerializer
