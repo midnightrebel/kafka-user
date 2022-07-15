@@ -55,7 +55,7 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
 
 
-class OfficeListView(viewsets.ModelViewSet):
+class OfficeViewSet(viewsets.ModelViewSet):
     queryset = Office.objects.all()
     serializer_class = OfficeSerializer
 

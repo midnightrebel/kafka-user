@@ -1,6 +1,6 @@
 import re
 
-from django.contrib.auth.hashers import make_password
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -40,7 +40,7 @@ class OfficeCreate(serializers.ModelSerializer):
 
     def validate(self, data):
         place = data['location']
-        if re.match(r'\d', data['name']):
+        if re.match(r'\d', data['location']):
             raise ValidationError("Название не должно начинаться с цифры.")
         if place != '':
             office_instance = Office.objects.filter(location=place)
