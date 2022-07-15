@@ -1,6 +1,6 @@
 import re
 
-
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -49,6 +49,18 @@ class OfficeCreate(serializers.ModelSerializer):
         return data
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    class Meta:
+        model = User
+        fields = ('password','email', 'username', 'team_leader', 'password', 'office', 'job_title')
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['password'])
+        instance.save()
+        return instance
+
+
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(
@@ -59,7 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'team_leader', 'password', 'office', 'job_title']
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

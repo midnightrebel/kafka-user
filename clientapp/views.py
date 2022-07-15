@@ -1,13 +1,14 @@
 import json
 
+from django.contrib.auth import update_session_auth_hash
 from rest_framework import generics
 from kafka import KafkaConsumer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import viewsets
 from .serializers import MessageSerializer, UserSerializer, TeamLeadSerializer, TeamLeadCreate, OfficeSerializer, \
-    OfficeCreate
+    OfficeCreate, UserUpdateSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from .models import Message, User, TeamLeader, Office
@@ -38,6 +39,7 @@ class TeamLeadViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         serializer = TeamLeadCreate(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
@@ -55,6 +57,12 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
 
 
+class AdminChangeView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAdminUser,)
+    queryset = User.objects.prefetch_related('office', 'team_leader')
+    serializer_class = UserUpdateSerializer
+
+
 class OfficeViewSet(viewsets.ModelViewSet):
     queryset = Office.objects.all()
     serializer_class = OfficeSerializer
@@ -62,4 +70,5 @@ class OfficeViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = OfficeCreate(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.data,status.HTTP_201_CREATED)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)

@@ -14,6 +14,9 @@ class Message(models.Model):
     content = models.CharField(max_length=255)
     objects = MessageManager()
 
+    def __str__(self):
+        return 'Сообщение номер: ' + str(self.pk)
+
     class Meta:
         verbose_name = 'Сообщение'
         verbose_name_plural = 'Сообщения'
@@ -47,11 +50,26 @@ class UserManager(BaseUserManager):
 
 class TeamLeader(models.Model):
     email = models.EmailField(unique=True, max_length=255)
-    username = models.CharField(unique=True,max_length=255)
+    username = models.CharField(unique=True, max_length=255)
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = 'Тим-лидер'
+        verbose_name_plural = 'Тим-лидеры'
+        ordering = ['username']
 
 
 class Office(models.Model):
     location = models.CharField(unique=True, max_length=255)
+
+    def __str__(self):
+        return self.location
+
+    class Meta:
+        verbose_name = 'Офис'
+        verbose_name_plural = 'Офисы'
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -60,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     team_leader = models.ManyToManyField(TeamLeader, related_name='team_lead')
     is_staff = models.BooleanField(default=False)
     job_title = models.CharField(max_length=255)
-    office = models.ManyToManyField(Office,related_name='office_location')
+    office = models.ManyToManyField(Office, related_name='office_location')
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
