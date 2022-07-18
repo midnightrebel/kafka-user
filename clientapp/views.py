@@ -1,17 +1,16 @@
 import json
 
-from django.contrib.auth import update_session_auth_hash
-from rest_framework import generics
 from kafka import KafkaConsumer
+from rest_framework import generics
+from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework import viewsets
-from .serializers import MessageSerializer, UserSerializer, TeamLeadSerializer, TeamLeadCreate, OfficeSerializer, \
-    OfficeCreate, UserUpdateSerializer
-from rest_framework import status
-from rest_framework.response import Response
+
 from .models import Message, User, TeamLeader, Office
+from .serializers import MessageSerializer, UserSerializer, TeamLeadSerializer, OfficeCreateSerializer, UserUpdateSerializer
 
 
 class ConsumerView(generics.GenericAPIView):
@@ -36,11 +35,6 @@ class TeamLeadViewSet(viewsets.ViewSet):
     queryset = TeamLeader.objects.all()
     serializer_class = TeamLeadSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = TeamLeadCreate(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status.HTTP_201_CREATED)
 
 
 class CurrentUserView(APIView):
@@ -65,10 +59,4 @@ class AdminChangeView(viewsets.ModelViewSet):
 
 class OfficeViewSet(viewsets.ModelViewSet):
     queryset = Office.objects.all()
-    serializer_class = OfficeSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = OfficeCreate(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status.HTTP_201_CREATED)
+    serializer_class = OfficeCreateSerializer

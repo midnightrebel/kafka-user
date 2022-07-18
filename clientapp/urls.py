@@ -14,5 +14,5 @@ urlpatterns = [
     path('users/', UserListView.as_view()),
     path('me/', CurrentUserView.as_view()),
     # path('users/<int:pk>/',AdminChangeView.as_view()),
-    path('', include(router.urls))
+    path('', include(router.urls)),
 ]

@@ -78,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     team_leader = models.ForeignKey(TeamLeader, related_name='team_lead',on_delete=models.CASCADE,null=True)
     is_staff = models.BooleanField(default=False)
     job_title = models.CharField(max_length=255)
-    office = models.ManyToManyField(Office, related_name='office_location')
+    office = models.ManyToManyField(Office)
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
