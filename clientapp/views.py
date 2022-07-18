@@ -53,7 +53,7 @@ class UserListView(generics.ListAPIView):
 
 class AdminChangeView(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
-    queryset = User.objects.prefetch_related('office', 'team_leader')
+    queryset = User.objects.prefetch_related('office').select_related('team_leader')
     serializer_class = UserUpdateSerializer
 
 
