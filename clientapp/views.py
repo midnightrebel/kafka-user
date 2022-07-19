@@ -10,7 +10,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Message, User, TeamLeader, Office
-from .serializers import MessageSerializer, UserSerializer, TeamLeadSerializer, OfficeCreateSerializer, UserUpdateSerializer
+from .serializers import MessageSerializer, UserSerializer, TeamLeadSerializer, OfficeCreateSerializer, \
+    UserUpdateSerializer
 
 
 class ConsumerView(generics.GenericAPIView):
@@ -35,6 +36,11 @@ class TeamLeadViewSet(viewsets.ViewSet):
     queryset = TeamLeader.objects.all()
     serializer_class = TeamLeadSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class CurrentUserView(APIView):
@@ -53,10 +59,15 @@ class UserListView(generics.ListAPIView):
 
 class AdminChangeView(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
-    queryset = User.objects.prefetch_related('office').select_related('team_leader')
+    queryset = User.objects.prefetch_related('office').select_related('teamleader')
     serializer_class = UserUpdateSerializer
 
 
 class OfficeViewSet(viewsets.ModelViewSet):
     queryset = Office.objects.all()
     serializer_class = OfficeCreateSerializer
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

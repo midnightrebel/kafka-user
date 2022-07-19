@@ -13,6 +13,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view()),
     path('users/', UserListView.as_view()),
     path('me/', CurrentUserView.as_view()),
-    # path('users/<int:pk>/',AdminChangeView.as_view()),
     path('', include(router.urls)),
 ]

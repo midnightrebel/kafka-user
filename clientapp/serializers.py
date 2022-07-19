@@ -18,27 +18,15 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class TeamLeadSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        return TeamLeader(**validated_data)
 
     class Meta:
         model = TeamLeader
         fields = ['email', 'username']
 
 
-class TeamLeadListSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=255)
-
-    class Meta:
-        model = TeamLeader
-        fields = ['username']
-
 
 class OfficeCreateSerializer(serializers.ModelSerializer):
     location = serializers.CharField(max_length=255)
-
-    def create(self, validated_data):
-        return Office(**validated_data)
 
     class Meta:
         model = Office
@@ -74,7 +62,7 @@ class OfficeUpdateSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
     office = OfficeUpdateSerializer(many=True)
-    team_leader = serializers.SlugRelatedField(queryset=TeamLeader.objects.all(),read_only=False,slug_field='username')
+    teamleader = serializers.SlugRelatedField(queryset=TeamLeader.objects.all(), read_only=False, slug_field='username')
 
     def validate(self, data):
         username = data['username']
@@ -92,7 +80,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('password', 'email', 'username', 'team_leader', 'password', 'office', 'job_title')
+        fields = ('password', 'email', 'username', 'teamleader', 'password', 'office', 'job_title')
 
     def get_or_update_offices(self, offices):
         offices_ids = []
@@ -108,7 +96,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             offices_ids.append(office_instance.pk)
         return offices_ids
 
-
     def create(self, validated_data):
         office = validated_data.pop('office', [])
         user = User.objects.create(**validated_data)
@@ -117,9 +104,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         office = validated_data.pop('office')
-        instance.team_leader = validated_data.get('team_leader')
+        instance.teamleader = validated_data.get('teamleader')
         instance.office.set(self.create_or_update_offices(office))
-        fields = ('password', 'email', 'username', 'team_leader', 'password', 'office', 'job_title')
+        fields = ('password', 'email', 'username', 'teamleader', 'password', 'office', 'job_title')
         for field in fields:
             try:
                 setattr(instance, field, validated_data[field])
@@ -131,7 +118,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    team_leader = serializers.StringRelatedField()
+    teamleader = serializers.StringRelatedField()
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(
         max_length=128,
@@ -141,7 +128,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'team_leader', 'password', 'office', 'job_title']
+        fields = ['email', 'username', 'teamleader', 'password', 'office', 'job_title']
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
