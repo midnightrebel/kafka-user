@@ -1,5 +1,6 @@
 import json
 
+from django_filters.rest_framework import DjangoFilterBackend
 from kafka import KafkaConsumer
 from rest_framework import generics
 from rest_framework import status
@@ -8,10 +9,10 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from .filters import UserFilter
 from .models import Message, User, TeamLeader, Office
 from .serializers import MessageSerializer, UserSerializer, TeamLeadSerializer, OfficeCreateSerializer, \
-    UserUpdateSerializer
+    UserUpdateSerializer, TeamLeadListSerializer
 
 
 class ConsumerView(generics.GenericAPIView):
@@ -59,15 +60,23 @@ class UserListView(generics.ListAPIView):
 
 class AdminChangeView(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
-    queryset = User.objects.prefetch_related('office').select_related('teamleader')
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = UserFilter
+    queryset = User.objects.prefetch_related('office')
     serializer_class = UserUpdateSerializer
 
 
 class OfficeViewSet(viewsets.ModelViewSet):
     queryset = Office.objects.all()
     serializer_class = OfficeCreateSerializer
+
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+class DataView(generics.ListAPIView):
+    queryset = TeamLeader.objects.prefetch_related('office')
+    serializer_class = TeamLeadListSerializer

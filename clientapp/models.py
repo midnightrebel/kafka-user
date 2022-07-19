@@ -48,19 +48,6 @@ class UserManager(BaseUserManager):
         return user
 
 
-class TeamLeader(models.Model):
-    email = models.EmailField(unique=True, max_length=255)
-    username = models.CharField(unique=True, max_length=255)
-
-    def __str__(self):
-        return self.username
-
-    class Meta:
-        verbose_name = 'Тим-лидер'
-        verbose_name_plural = 'Тим-лидеры'
-        ordering = ['username']
-
-
 class Office(models.Model):
     location = models.CharField(unique=True, max_length=255)
 
@@ -75,7 +62,6 @@ class Office(models.Model):
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
-    teamleader = models.ForeignKey(TeamLeader, related_name='team_lead',on_delete=models.CASCADE,null=True)
     is_staff = models.BooleanField(default=False)
     job_title = models.CharField(max_length=255)
     office = models.ManyToManyField(Office)
@@ -93,3 +79,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ['username']
+
+
+class TeamLeader(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
+    office = models.ManyToManyField(Office)
+    language = models.CharField(max_length=255,default='')
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = 'Тим-лидер'
+        verbose_name_plural = 'Тим-лидеры'
+        ordering = ['language']
+

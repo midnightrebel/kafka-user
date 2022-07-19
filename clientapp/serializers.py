@@ -18,16 +18,14 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class TeamLeadSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TeamLeader
-        fields = ['email', 'username']
-
+        fields = ['user', 'language']
 
 
 class OfficeCreateSerializer(serializers.ModelSerializer):
     location = serializers.CharField(max_length=255)
-
+    teamleader = serializers.SlugRelatedField(queryset=TeamLeader.objects.all(), read_only=False, slug_field='username')
     class Meta:
         model = Office
         fields = ['location']
@@ -59,10 +57,27 @@ class OfficeUpdateSerializer(serializers.ModelSerializer):
         fields = ['location']
 
 
+class TeamLeadListSerializer(serializers.ModelSerializer):
+    office = OfficeUpdateSerializer(many=True)
+    user = serializers.SlugRelatedField(queryset=User.objects.all(),read_only=False,slug_field='username')
+    class Meta:
+        model = TeamLeader
+        fields = ['user','office']
+
+    def validate(self, data):
+        place = data['teamleader']
+        if re.match(r'\d', data['teamleader']):
+            raise ValidationError("Название не должно начинаться с цифры.")
+        if place != '':
+            office_instance = TeamLeader.objects.filter(username=place)
+        if office_instance.exists():
+            raise ValidationError("Тимлид уже существует")
+        return data
+
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
     office = OfficeUpdateSerializer(many=True)
-    teamleader = serializers.SlugRelatedField(queryset=TeamLeader.objects.all(), read_only=False, slug_field='username')
 
     def validate(self, data):
         username = data['username']
@@ -80,7 +95,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('password', 'email', 'username', 'teamleader', 'password', 'office', 'job_title')
+        fields = ('password', 'email', 'username','password', 'office', 'job_title')
 
     def get_or_update_offices(self, offices):
         offices_ids = []
